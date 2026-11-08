@@ -20,6 +20,30 @@ from app.config import MODEL, api_error_message, get_api_key
 # 講座に固有の質問。正しい答えは data/glossary.json の homework-levels にある
 DEFAULT_QUESTION = "AIE2026の講座の宿題にある「3レベル」とは何ですか？"
 
+"""
+def ask(question: str) -> str:
+    client = genai.Client(api_key=get_api_key())
+    response = client.models.generate_content(model=MODEL, contents=question)
+
+    usage = getattr(response, "usage_metadata", None)
+    if usage is not None:
+        prompt_tokens = usage.prompt_token_count or 0
+        output_tokens = usage.candidates_token_count or 0
+        print(f"[入力トークン数] {prompt_tokens}")
+        print(f"[出力トークン数] {output_tokens}\n")
+    return response.text
+"""
+
+def caht(first_question: str) -> None:
+    client = genai.Client(api_key=get_api_key())
+    session = client.chats.create(model=MODEL) ## 履歴はSDKのChatが持つ
+    question = first_question
+    while question:
+        response = session.send_message(question) ## これまでの履歴＋今回の質問を送る
+        print(response.text)
+        usage = response.usage_metadata
+        print(f"[takens] 入力 {usage.prompt_token_count} / 出力 {usage.candidates_taken_count}")
+        question = input("\n[続けて質問(空行で終了)]").strip
 
 def ask(question: str) -> str:
     client = genai.Client(api_key=get_api_key())
@@ -30,10 +54,8 @@ def ask(question: str) -> str:
         prompt_tokens = usage.prompt_token_count or 0
         output_tokens = usage.candidates_token_count or 0
         print(f"[入力トークン数] {prompt_tokens}")
-        print(f"[出力トークン数] {output_tokens}")
-
+        print(f"[出力トークン数] {output_tokens}\n")
     return response.text
-
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="素のLLMに質問する")
